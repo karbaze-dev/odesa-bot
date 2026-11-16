@@ -845,15 +845,21 @@ async def web_server():
     port = int(os.environ.get("PORT", 8080))
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
-
 async def main():
     init_db()
-    await set_bot_commands(bot)
     
     # Запускаємо локальний вебсервер та поллінг бота паралельно
     await web_server()
     print("Бот успішно запущено разом із вебсервером на Render...")
+    
+    # Безпечно встановлюємо команди з обробкою помилок мережі
+    try:
+        await set_bot_commands(bot)
+    except Exception as e:
+        print(f"Попередження при встановленні команд: {e}")
+
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
